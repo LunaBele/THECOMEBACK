@@ -1,0 +1,7 @@
+{
+  "PAGE_ACCESS_TOKEN": "EAAUXNZAuT1QQBPaZBxFjwFTMIuAwsZABOKZBDtW3rRHpFK4IRNWKwDRjyySNqfm31FWz3ytn13PIVbFjfrVtZCBaZCdCIs2Tr59I0mRnaNU2JhRqaI1PzceLE2x9A74rUBZBh9BClzZAiH9USWILvOQhUl2DiPDjSj8ZCauqRrjtZBBcIlvpdxDdgoj57puLnAvp6ji9lAQwZDZD",
+  "VERIFY_TOKEN": "GAG",
+"MONGO_URI": "mongodb+srv://mart1john2labaco3:NeyCqMwiUt5f9ssQ@gag.fftre6w.mongodb.net/?retryWrites=true&w=majority&appName=GAG",
+  "API_URL": "https://gagstock.gleeze.com",
+  "WEB_INTERFACE_URL": "https://your-server.com"
+}
