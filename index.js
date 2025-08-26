@@ -73,10 +73,7 @@ async function sendRegistrationMessage(uid) {
         elements: [
           {
             title: "Register to Use GAG DROP WATCH",
-            subtitle: `Hey there! You need to register to use GAG DROP WATCH. 😊\n\n` +
-                     `1. Copy your UID: ${uid}\n` +
-                     `2. Visit the website to pick your preferred Seeds, Gear, Eggs, and Traveling Merchant items.\n` +
-                     `3. We'll notify you via Messenger when your items are in stock!`,
+            subtitle: `Copy your UID: ${uid}`,
             buttons: [
               {
                 type: "web_url",
