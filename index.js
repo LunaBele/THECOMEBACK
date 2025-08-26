@@ -12,6 +12,10 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+// ====== REGISTRATION MESSAGE CACHE ======
+const unregisteredMessageCache = new Map(); // Stores { uid: timestamp }
+const MESSAGE_COOLDOWN = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 // ====== DB SETUP ======
 mongoose.connect(config.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -55,6 +59,12 @@ async function sendMessengerMessage(uid, message) {
 }
 
 async function sendRegistrationMessage(uid) {
+  // Check if message was sent recently
+  const lastSent = unregisteredMessageCache.get(uid);
+  if (lastSent && Date.now() - lastSent < MESSAGE_COOLDOWN) {
+    return; // Don't send if within cooldown
+  }
+
   await sendMessengerMessage(uid, {
     attachment: {
       type: "template",
@@ -79,6 +89,9 @@ async function sendRegistrationMessage(uid) {
       },
     },
   });
+
+  // Update cache
+  unregisteredMessageCache.set(uid, Date.now());
 }
 
 // ====== WEBSOCKET SETUP ======
@@ -576,6 +589,9 @@ app.post("/save-preferences", async (req, res) => {
       { name, seeds, gear, eggs, travelingmerchant },
       { new: true, upsert: true }
     );
+
+    // Clear registration message cache for this user
+    unregisteredMessageCache.delete(uid);
 
     // Send Messenger confirmation
     let notifyMsg = `✅ Hi ${updatedUser.name}! (${mode}), your Grow A Garden notifications are saved!\n\n` +
