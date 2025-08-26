@@ -2,645 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageTitle">GAG Drop Watch</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      /* Changed to garden-themed gradient with natural greens and earth tones */
-      background: linear-gradient(135deg, #2d5016 0%, #3e7b27 25%, #4a7c59 50%, #2d5016 100%);
-      background-size: 400% 400%;
-      animation: gardenBreeze 15s ease infinite;
-      min-height: 100vh;
-      color: #2c3e2d;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Added garden-themed background pattern */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(circle at 20% 80%, rgba(120, 200, 80, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(100, 180, 60, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(140, 220, 100, 0.05) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    /* Added subtle garden breeze animation */
-    @keyframes gardenBreeze {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-      animation: fadeInDown 1s ease-out;
-    }
-
-    .logo {
-      /* Changed to garden-themed gradient colors */
-      background: linear-gradient(45deg, #4a7c59, #78c850, #2d5016);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 4px rgba(45, 80, 22, 0.3);
-      position: relative;
-    }
-
-    /* Added decorative leaf elements around the logo */
-    .logo::before,
-    .logo::after {
-      content: '🌿';
-      position: absolute;
-      font-size: 1.5rem;
-      animation: leafSway 3s ease-in-out infinite;
-    }
-
-    .logo::before {
-      left: -40px;
-      top: 10px;
-      animation-delay: 0s;
-    }
-
-    .logo::after {
-      right: -40px;
-      top: 10px;
-      animation-delay: 1.5s;
-    }
-
-    @keyframes leafSway {
-      0%, 100% { transform: rotate(-5deg); }
-      50% { transform: rotate(5deg); }
-    }
-
-    .subtitle {
-      /* Changed to garden-themed text color */
-      color: rgba(200, 255, 200, 0.9);
-      font-size: 1.1rem;
-      margin-bottom: 20px;
-    }
-
-    .intro-card {
-      /* Changed to garden-themed card styling with earth tones */
-      background: linear-gradient(145deg, rgba(240, 248, 235, 0.95), rgba(230, 245, 220, 0.95));
-      backdrop-filter: blur(10px);
-      border-radius: 25px;
-      padding: 30px;
-      margin-bottom: 20px;
-      box-shadow: 
-        0 8px 32px rgba(45, 80, 22, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      border: 2px solid rgba(120, 200, 80, 0.3);
-      animation: fadeInUp 1s ease-out 0.3s both;
-      position: relative;
-    }
-
-    /* Added subtle leaf pattern to cards */
-    .intro-card::before {
-      content: '';
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      width: 30px;
-      height: 30px;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2378c850'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z'/%3E%3C/svg%3E") no-repeat;
-      background-size: contain;
-      opacity: 0.3;
-    }
-
-    .form-card {
-      /* Applied same garden-themed styling to form cards */
-      background: linear-gradient(145deg, rgba(240, 248, 235, 0.95), rgba(230, 245, 220, 0.95));
-      backdrop-filter: blur(10px);
-      border-radius: 25px;
-      padding: 30px;
-      margin-bottom: 20px;
-      box-shadow: 
-        0 8px 32px rgba(45, 80, 22, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      border: 2px solid rgba(120, 200, 80, 0.3);
-      animation: fadeInUp 1s ease-out 0.6s both;
-      position: relative;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      /* Changed label color to garden theme */
-      color: #2d5016;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 15px;
-      /* Changed input styling to garden theme */
-      border: 2px solid rgba(120, 200, 80, 0.4);
-      border-radius: 15px;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      background: rgba(248, 255, 248, 0.8);
-      color: #2d5016;
-    }
-
-    input[type="text"]:focus {
-      outline: none;
-      /* Changed focus colors to garden theme */
-      border-color: #4a7c59;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 0 0 3px rgba(120, 200, 80, 0.2);
-    }
-
-    select {
-      width: 100%;
-      padding: 15px;
-      /* Applied garden theme to select elements */
-      border: 2px solid rgba(120, 200, 80, 0.4);
-      border-radius: 15px;
-      font-size: 16px;
-      background: rgba(248, 255, 248, 0.8);
-      color: #2d5016;
-      min-height: 120px;
-      transition: all 0.3s ease;
-    }
-
-    select:focus {
-      outline: none;
-      border-color: #4a7c59;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 0 0 3px rgba(120, 200, 80, 0.2);
-    }
-
-    select option {
-      padding: 8px;
-      background: #f8fff8;
-      color: #2d5016;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 15px;
-      /* Changed button to garden-themed gradient */
-      background: linear-gradient(45deg, #4a7c59, #78c850, #2d5016);
-      background-size: 200% 200%;
-      color: white;
-      border: none;
-      border-radius: 15px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      /* Changed hover shadow to garden theme */
-      box-shadow: 0 8px 25px rgba(74, 124, 89, 0.4);
-      background-position: 100% 0;
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .welcome-text {
-      /* Changed welcome text to garden theme */
-      background: linear-gradient(45deg, #4a7c59, #78c850);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .result {
-      margin: 20px 0;
-      padding: 15px;
-      border-radius: 15px;
-      text-align: center;
-      font-weight: 500;
-    }
-
-    .result.error {
-      /* Changed error styling to garden theme */
-      background: rgba(220, 100, 100, 0.1);
-      color: #8b4513;
-      border: 1px solid rgba(220, 100, 100, 0.3);
-    }
-
-    .result.success {
-      /* Changed success styling to garden theme */
-      background: rgba(120, 200, 80, 0.1);
-      color: #2d5016;
-      border: 1px solid rgba(120, 200, 80, 0.3);
-    }
-
-    .menu {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-
-    .menu-btn {
-      /* Changed menu button to garden theme */
-      background: linear-gradient(145deg, rgba(240, 248, 235, 0.9), rgba(230, 245, 220, 0.9));
-      border: 2px solid rgba(120, 200, 80, 0.3);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(45, 80, 22, 0.2);
-      transition: all 0.3s ease;
-      color: #2d5016;
-      font-size: 18px;
-    }
-
-    .menu-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 20px rgba(45, 80, 22, 0.3);
-    }
-
-    .menu-dropdown {
-      position: absolute;
-      top: 60px;
-      right: 0;
-      /* Applied garden theme to menu dropdown */
-      background: linear-gradient(145deg, rgba(240, 248, 235, 0.95), rgba(230, 245, 220, 0.95));
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(120, 200, 80, 0.3);
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 8px 25px rgba(45, 80, 22, 0.2);
-      min-width: 200px;
-      display: none;
-      animation: fadeInDown 0.3s ease;
-    }
-
-    .menu-dropdown.show {
-      display: block;
-    }
-
-    .menu-item {
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(120, 200, 80, 0.2);
-      color: #2d5016;
-      font-size: 14px;
-    }
-
-    .menu-item:last-child {
-      border-bottom: none;
-      font-weight: bold;
-      color: #4a7c59;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
-      margin-right: 10px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 15px;
-      }
-
-      .logo {
-        font-size: 2rem;
-      }
-
-      .logo::before,
-      .logo::after {
-        display: none;
-      }
-
-      .form-card, .intro-card {
-        padding: 20px;
-      }
-
-      .menu {
-        top: 15px;
-        right: 15px;
-      }
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
-    }
-
-    .feature-item {
-      text-align: center;
-      padding: 15px;
-      /* Changed feature items to garden theme */
-      background: linear-gradient(145deg, rgba(120, 200, 80, 0.1), rgba(78, 200, 80, 0.05));
-      border: 1px solid rgba(120, 200, 80, 0.2);
-      border-radius: 18px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Added subtle garden sparkle effect to feature items */
-    .feature-item::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(45deg, transparent, rgba(120, 200, 80, 0.1), transparent);
-      transform: rotate(45deg);
-      transition: all 0.6s ease;
-      opacity: 0;
-    }
-
-    .feature-item:hover::before {
-      animation: gardenSparkle 0.6s ease;
-    }
-
-    @keyframes gardenSparkle {
-      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
-      50% { opacity: 1; }
-      100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
-    }
-
-    .feature-item:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(120, 200, 80, 0.2);
-      border-color: rgba(120, 200, 80, 0.4);
-    }
-
-    .feature-icon {
-      font-size: 2rem;
-      margin-bottom: 8px;
-    }
-
-    .feature-text {
-      font-size: 0.9rem;
-      /* Changed feature text color to garden theme */
-      color: #2d5016;
-      font-weight: 500;
-    }
-  </style>
+  <title>Grow A Garden Notifier</title>
 </head>
 <body>
-  <div class="menu">
-    <!-- Changed menu icon to garden-themed -->
-    <button class="menu-btn" onclick="toggleMenu()">🌿</button>
-    <div class="menu-dropdown" id="menuDropdown">
-      <div class="menu-item">🌱 Garden Tracker</div>
-      <div class="menu-item">📊 Drop Analytics</div>
-      <div class="menu-item">⚙️ Settings</div>
-      <div class="menu-item">❤️ Credits: GAG DROP WATCH TEAM</div>
-    </div>
-  </div>
+  <h1>Grow A Garden Notifier</h1>
+  <form id="uidForm">
+    <label>Enter Facebook UID:</label>
+    <input type="text" name="uid" required>
+    <button type="submit">Check</button>
+  </form>
 
-  <div class="container">
-    <div class="header">
-      <h1 class="logo">GAG DROP WATCH</h1>
-      <p class="subtitle">Your Ultimate Garden Notification Hub</p>
-    </div>
+  <div id="result"></div>
+  <div id="uid-display"></div>
 
-    <div class="intro-card" id="introCard">
-      <!-- Updated intro text to be more garden-themed -->
-      <h2 style="color: #4a7c59; margin-bottom: 15px; text-align: center;">🌻 Welcome to Your Digital Garden Paradise!</h2>
-      <p style="text-align: center; color: #2d5016; line-height: 1.6; margin-bottom: 20px;">
-        Cultivate your perfect garden experience! Track your favorite seeds, tend to your gear, and nurture your eggs with the care of a master gardener. Get notified when your dream items bloom in the garden!
-      </p>
+  <form id="preferencesForm" style="display:none;">
+    <h3 id="welcomeText"></h3>
 
-      <div class="feature-grid">
-        <div class="feature-item">
-          <div class="feature-icon">🌱</div>
-          <div class="feature-text">Plant Seeds</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">🛠️</div>
-          <div class="feature-text">Garden Tools</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">🥚</div>
-          <div class="feature-text">Hatch Eggs</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">🔔</div>
-          <div class="feature-text">Garden Alerts</div>
-        </div>
-      </div>
-    </div>
+    <label>Seeds:</label><br>
+    <select name="seeds" multiple>
+      <option>Carrot</option>
+      <option>Strawberry</option>
+      <option>Blueberry</option>
+      <option>Orange Tulip</option>
+      <option>Tomato</option>
+      <option>Daffodil</option>
+      <option>Corn</option>
+      <option>Watermelon</option>
+      <option>Pumpkin</option>
+      <option>Apple</option>
+      <option>Bamboo</option>
+      <option>Coconut</option>
+      <option>Cactus</option>
+      <option>Dragon Fruit</option>
+      <option>Mango</option>
+      <option>Grape</option>
+      <option>Mushroom</option>
+      <option>Pepper</option>
+      <option>Cacao</option>
+      <option>Beanstalk</option>
+      <option>Ember Lily</option>
+      <option>Sugar Apple</option>
+      <option>Burning Bud</option>
+      <option>Giant Pinecone</option>
+      <option>Elder Strawberry</option>
+      <option>Romanesco</option>
+    </select><br><br>
 
-    <div class="form-card">
-      <form id="uidForm">
-        <div class="form-group">
-          <!-- Updated label to be more garden-themed -->
-          <label for="uid">🌿 Enter Your Gardener ID (Facebook UID):</label>
-          <input type="text" name="uid" id="uid" required placeholder="Enter your gardener ID here...">
-        </div>
-        <button type="submit" class="btn">
-          <!-- Updated button text to garden theme -->
-          <span class="btn-text">🌱 Start Gardening</span>
-        </button>
-      </form>
-      <div id="result" class="result hidden"></div>
-    </div>
+    <label>Gear:</label><br>
+    <select name="gear" multiple>
+      <option>Watering Can</option>
+      <option>Trowel</option>
+      <option>Trading Ticket</option>
+      <option>Recall Wrench</option>
+      <option>Basic Sprinkler</option>
+      <option>Advanced Sprinkler</option>
+      <option>Medium Toy</option>
+      <option>Medium Treat</option>
+      <option>Godly Sprinkler</option>
+      <option>Magnifying Glass</option>
+      <option>Master Sprinkler</option>
+      <option>Cleaning Spray</option>
+      <option>Cleansing Pet Shard</option>
+      <option>Favorite Tool</option>
+      <option>Harvest Tool</option>
+      <option>Friendship Pot</option>
+      <option>Grandmaster Sprinkler</option>
+      <option>Level Up Lollipop</option>
+    </select><br><br>
 
-    <div class="form-card hidden" id="preferencesForm">
-      <h3 id="welcomeText" class="welcome-text"></h3>
+    <label>Eggs:</label><br>
+    <select name="eggs" multiple>
+      <option>Common Egg</option>
+      <option>Uncommon Egg</option>
+      <option>Rare Egg</option>
+      <option>Legendary Egg</option>
+      <option>Mythical Egg</option>
+      <option>Bug Egg</option>
+    </select><br><br>
 
-      <form id="prefsForm">
-        <div class="form-group">
-          <!-- Updated labels to be more garden-themed -->
-          <label for="seeds">🌱 Choose Your Seeds to Cultivate:</label>
-          <select name="seeds" id="seeds" multiple>
-            <option>Carrot</option>
-            <option>Strawberry</option>
-            <option>Blueberry</option>
-            <option>Orange Tulip</option>
-            <option>Tomato</option>
-            <option>Daffodil</option>
-            <option>Corn</option>
-            <option>Watermelon</option>
-            <option>Pumpkin</option>
-            <option>Apple</option>
-            <option>Bamboo</option>
-            <option>Coconut</option>
-            <option>Cactus</option>
-            <option>Dragon Fruit</option>
-            <option>Mango</option>
-            <option>Grape</option>
-            <option>Mushroom</option>
-            <option>Pepper</option>
-            <option>Cacao</option>
-            <option>Beanstalk</option>
-            <option>Ember Lily</option>
-            <option>Sugar Apple</option>
-            <option>Burning Bud</option>
-            <option>Giant Pinecone</option>
-            <option>Elder Strawberry</option>
-            <option>Romanesco</option>
-          </select>
-        </div>
+    <label>Traveling Merchant:</label><br>
+    <select name="travelingmerchant" multiple>
+      <option>Cauliflower</option>
+      <option>Special Seed</option>
+      <option>Mystery Box</option>
+      <option>Rare Fertilizer</option>
+      <option>Golden Carrot</option>
+      <option>Starfruit</option>
+    </select><br><br>
 
-        <div class="form-group">
-          <label for="gear">🛠️ Select Your Garden Tools:</label>
-          <select name="gear" id="gear" multiple>
-            <option>Watering Can</option>
-            <option>Trowel</option>
-            <option>Trading Ticket</option>
-            <option>Recall Wrench</option>
-            <option>Basic Sprinkler</option>
-            <option>Advanced Sprinkler</option>
-            <option>Medium Toy</option>
-            <option>Medium Treat</option>
-            <option>Godly Sprinkler</option>
-            <option>Magnifying Glass</option>
-            <option>Master Sprinkler</option>
-            <option>Cleaning Spray</option>
-            <option>Cleansing Pet Shard</option>
-            <option>Favorite Tool</option>
-            <option>Harvest Tool</option>
-            <option>Friendship Pot</option>
-            <option>Grandmaster Sprinkler</option>
-            <option>Level Up Lollipop</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="eggs">🥚 Pick Your Eggs to Nurture:</label>
-          <select name="eggs" id="eggs" multiple>
-            <option>Common Egg</option>
-            <option>Uncommon Egg</option>
-            <option>Rare Egg</option>
-            <option>Legendary Egg</option>
-            <option>Mythical Egg</option>
-            <option>Bug Egg</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn">
-          <!-- Updated save button to garden theme -->
-          <span class="btn-text">🌿 Save Garden Preferences</span>
-        </button>
-      </form>
-    </div>
-  </div>
+    <button type="submit">Save Preferences</button>
+  </form>
 
   <script>
-    let currentUserName = '';
-
-    function toggleMenu() {
-      const dropdown = document.getElementById('menuDropdown');
-      dropdown.classList.toggle('show');
-    }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-      const menu = document.querySelector('.menu');
-      if (!menu.contains(event.target)) {
-        document.getElementById('menuDropdown').classList.remove('show');
-      }
-    });
-
-    function showLoading(button) {
-      const btnText = button.querySelector('.btn-text');
-      btnText.innerHTML = '<span class="loading"></span>Processing...';
-      button.disabled = true;
-    }
-
-    function hideLoading(button, originalText) {
-      const btnText = button.querySelector('.btn-text');
-      btnText.innerHTML = originalText;
-      button.disabled = false;
-    }
-
-    function showResult(message, isError = false) {
-      const result = document.getElementById('result');
-      result.textContent = message;
-      result.className = `result ${isError ? 'error' : 'success'}`;
-      result.classList.remove('hidden');
-    }
-
     document.getElementById("uidForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = '🌱 Start Gardening';
+      const uid = e.target.uid.value.trim();
 
-      showLoading(submitBtn);
-
-      const uid = e.target.uid.value;
+      if (!uid) {
+        document.getElementById("result").innerText = "Please enter a UID.";
+        return;
+      }
 
       try {
         const res = await fetch("/check-uid", {
@@ -648,103 +109,75 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uid })
         });
-
         const data = await res.json();
 
         if (data.success) {
-          currentUserName = data.name;
-
-          // Update page title with user name
-          document.getElementById('pageTitle').textContent = `${data.name} - GAG Drop Watch`;
-
-          // Hide intro card and show preferences
-          document.getElementById('introCard').style.display = 'none';
-          document.getElementById('uidForm').parentElement.style.display = 'none';
-
-          const welcomeText = `🎉 Welcome back, ${data.name}! ${data.mode === "edit" ? "(Editing Mode)" : "(New Setup)"}`;
-          document.getElementById("welcomeText").textContent = welcomeText;
-          document.getElementById("preferencesForm").classList.remove('hidden');
+          document.getElementById("welcomeText").innerText = `Hello, ${data.name}! (${data.mode === "edit" ? "Edit Mode" : "New"})`;
+          document.getElementById("preferencesForm").style.display = "block";
           document.getElementById("preferencesForm").dataset.uid = uid;
+          document.getElementById("uid-display").innerText = `Your UID: ${uid} (click to copy)`;
+          document.getElementById("uid-display").onclick = () => {
+            navigator.clipboard.writeText(uid).then(() => {
+              document.getElementById("result").innerText = "UID copied to clipboard!";
+              setTimeout(() => {
+                document.getElementById("result").innerText = "";
+              }, 3000);
+            });
+          };
+          document.getElementById("result").innerText = `UID validated! Name: ${data.name}`;
 
           // Pre-fill if edit mode
           if (data.mode === "edit") {
             const seeds = data.seeds || [];
             const gear = data.gear || [];
             const eggs = data.eggs || [];
-
+            const travelingmerchant = data.travelingmerchant || [];
             document.querySelectorAll("select[name='seeds'] option").forEach(opt => {
-              opt.selected = seeds.includes(opt.value);
+              if (seeds.includes(opt.value)) opt.selected = true;
             });
             document.querySelectorAll("select[name='gear'] option").forEach(opt => {
-              opt.selected = gear.includes(opt.value);
+              if (gear.includes(opt.value)) opt.selected = true;
             });
             document.querySelectorAll("select[name='eggs'] option").forEach(opt => {
-              opt.selected = eggs.includes(opt.value);
+              if (eggs.includes(opt.value)) opt.selected = true;
+            });
+            document.querySelectorAll("select[name='travelingmerchant'] option").forEach(opt => {
+              if (travelingmerchant.includes(opt.value)) opt.selected = true;
             });
           }
-
-          showResult(`Successfully loaded profile for ${data.name}!`);
         } else {
-          showResult(data.message, true);
+          document.getElementById("result").innerText = data.message;
         }
-      } catch (error) {
-        showResult("Connection error. Please try again.", true);
-      } finally {
-        hideLoading(submitBtn, originalText);
+      } catch (err) {
+        document.getElementById("result").innerText = "Error validating UID. Please try again.";
       }
     });
 
-    document.getElementById("prefsForm").addEventListener("submit", async (e) => {
+    document.getElementById("preferencesForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = '🌿 Save Garden Preferences';
-
-      showLoading(submitBtn);
-
-      const uid = document.getElementById("preferencesForm").dataset.uid;
+      const uid = e.target.dataset.uid;
+      const name = document.getElementById("welcomeText").innerText.split(",")[1].split("!")[0].trim();
       const seeds = Array.from(e.target.seeds.selectedOptions).map(o => o.value);
       const gear = Array.from(e.target.gear.selectedOptions).map(o => o.value);
       const eggs = Array.from(e.target.eggs.selectedOptions).map(o => o.value);
+      const travelingmerchant = Array.from(e.target.travelingmerchant.selectedOptions).map(o => o.value);
+
+      if (seeds.length === 0 && gear.length === 0 && eggs.length === 0 && travelingmerchant.length === 0) {
+        document.getElementById("result").innerText = "Please select at least one preference.";
+        return;
+      }
 
       try {
         const res = await fetch("/save-preferences", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            uid, 
-            name: currentUserName, 
-            seeds, 
-            gear, 
-            eggs 
-          })
+          body: JSON.stringify({ uid, name, seeds, gear, eggs, travelingmerchant })
         });
-
         const data = await res.json();
-        showResult(data.message);
-
-        // Show success animation
-        if (data.success !== false) {
-          submitBtn.style.background = 'linear-gradient(45deg, #78c850, #4a7c59)';
-          setTimeout(() => {
-            submitBtn.style.background = 'linear-gradient(45deg, #4a7c59, #78c850, #2d5016)';
-          }, 2000);
-        }
-      } catch (error) {
-        showResult("Failed to save preferences. Please try again.", true);
-      } finally {
-        hideLoading(submitBtn, originalText);
+        document.getElementById("result").innerText = data.message;
+      } catch (err) {
+        document.getElementById("result").innerText = "Error saving preferences. Please try again.";
       }
-    });
-
-    // Add some interactive animations
-    document.querySelectorAll('.feature-item').forEach(item => {
-      item.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-5px) scale(1.05)';
-      });
-
-      item.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0) scale(1)';
-      });
     });
   </script>
 </body>
