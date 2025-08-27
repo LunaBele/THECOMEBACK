@@ -31,34 +31,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-// ====== FACEBOOK API ======
-async function getFBUserName(uid) {
-  try {
-    // Validate UID format (numeric string)
-    if (!/^\d+$/.test(uid)) {
-      console.error(`Invalid UID format: ${uid}`);
-      return null;
-    }
-
-    const response = await axios.get(
-      `https://graph.facebook.com/v17.0/${uid}?fields=name&access_token=${config.PAGE_ACCESS_TOKEN}`,
-      { timeout: 5000 } // 5-second timeout
-    );
-    if (!response.data.name) {
-      console.error(`No name returned for UID: ${uid}`);
-      return null;
-    }
-    return response.data.name;
-  } catch (err) {
-    console.error("FB Name Fetch Error:", {
-      uid,
-      error: err.response?.data?.error || err.message,
-      status: err.response?.status,
-    });
-    return null;
-  }
-}
-
+// ====== FACEBOOK MESSENGER API ======
 async function sendMessengerMessage(uid, message) {
   try {
     await axios.post(
@@ -83,6 +56,12 @@ async function sendRegistrationMessage(uid) {
   const lastSent = unregisteredMessageCache.get(uid);
   if (lastSent && Date.now() - lastSent < MESSAGE_COOLDOWN) {
     return; // Don't send if within cooldown
+  }
+
+  // Validate UID format (numeric string)
+  if (!/^\d+$/.test(uid)) {
+    console.error(`Invalid UID format in sendRegistrationMessage: ${uid}`);
+    return;
   }
 
   await sendMessengerMessage(uid, {
@@ -433,6 +412,13 @@ app.post("/webhook", async (req, res) => {
       const webhookEvent = entry.messaging[0];
       const uid = webhookEvent.sender.id;
 
+      // Validate UID format
+      if (!/^\d+$/.test(uid)) {
+        console.error(`Invalid UID format in webhook: ${uid}`);
+        res.status(200).json({ status: "success" });
+        continue;
+      }
+
       // Check if user is registered
       const user = await User.findOne({ uid });
       if (!user) {
@@ -478,7 +464,13 @@ app.post("/webhook", async (req, res) => {
           await sendMessengerMessage(uid, { text: prefsMsg });
         } else if (payload.startsWith("COPY_UID_")) {
           const copiedUid = payload.replace("COPY_UID_", "");
-          await sendMessengerMessage(uid, { text: copiedUid });
+          // Validate UID format before sending
+          if (/^\d+$/.test(copiedUid)) {
+            await sendMessengerMessage(copiedUid, { text: copiedUid });
+          } else {
+            console.error(`Invalid UID format in COPY_UID postback: ${copiedUid}`);
+            await sendMessengerMessage(uid, { text: "Error: Invalid UID format. Please try again." });
+          }
         }
       }
     }
@@ -577,20 +569,21 @@ app.get("/webhook", (req, res) => {
   }
 });
 
-// Check UID
+// Check UID (basic validation, no Facebook API)
 app.post("/check-uid", async (req, res) => {
   const { uid } = req.body;
   const trimmedUid = uid.trim();
-  const fbName = await getFBUserName(trimmedUid);
-  if (!fbName) {
-    return res.json({ success: false, message: "Invalid UID or Facebook API error. Please ensure the UID is correct and try again." });
+
+  // Validate UID format (numeric string)
+  if (!/^\d+$/.test(trimmedUid)) {
+    return res.json({ success: false, message: "Invalid UID format. Please enter a numeric UID." });
   }
 
   const user = await User.findOne({ uid: trimmedUid });
   if (user) {
     return res.json({
       success: true,
-      name: fbName,
+      name: user.name,
       mode: "edit",
       seeds: user.seeds,
       gear: user.gear,
@@ -599,7 +592,7 @@ app.post("/check-uid", async (req, res) => {
     });
   }
 
-  res.json({ success: true, name: fbName, mode: "new" });
+  res.json({ success: true, mode: "new" });
 });
 
 // Save preferences
@@ -608,11 +601,24 @@ app.post("/save-preferences", async (req, res) => {
 
   try {
     const trimmedUid = uid.trim();
+    const trimmedName = name.trim();
+
+    // Validate inputs
+    if (!/^\d+$/.test(trimmedUid)) {
+      return res.status(400).json({ success: false, message: "Invalid UID format. Please enter a numeric UID." });
+    }
+    if (!trimmedName) {
+      return res.status(400).json({ success: false, message: "Name is required." });
+    }
+    if (!seeds.length && !gear.length && !eggs.length && !travelingmerchant.length) {
+      return res.status(400).json({ success: false, message: "Please select at least one preference." });
+    }
+
     const user = await User.findOne({ uid: trimmedUid });
     const mode = user ? "Edit Mode" : "New";
     const updatedUser = await User.findOneAndUpdate(
       { uid: trimmedUid },
-      { name, seeds, gear, eggs, travelingmerchant },
+      { name: trimmedName, seeds, gear, eggs, travelingmerchant },
       { new: true, upsert: true }
     );
 
@@ -620,18 +626,18 @@ app.post("/save-preferences", async (req, res) => {
     unregisteredMessageCache.delete(trimmedUid);
 
     // Send Messenger confirmation
-    let notifyMsg = `✅ Hi ${updatedUser.name}! (${mode}), your Grow A Garden notifications are saved!\n\n` +
+    let notifyMsg = `✅ Hi ${updatedUser.name}! You have successfully registered with GAG DROP WATCH (${mode}).\n\n` +
                     `🌱 Seeds: ${updatedUser.seeds.join(", ") || "None"}\n` +
                     `🛠️ Gear: ${updatedUser.gear.join(", ") || "None"}\n` +
                     `🥚 Eggs: ${updatedUser.eggs.join(", ") || "None"}\n` +
                     `🚚 Traveling Merchant: ${updatedUser.travelingmerchant.join(", ") || "None"}\n\n` +
-                    `If one of these gets in stock, we will notify you. Thanks for using GAG DROP WATCH.`;
+                    `You will be notified when these items are in stock.`;
     await sendMessengerMessage(trimmedUid, { text: notifyMsg });
 
     res.json({ success: true, message: "Preferences saved and confirmation sent on Messenger." });
   } catch (err) {
     console.error("Save Error:", err.message);
-    res.status(500).json({ success: false, message: "Failed to save preferences." });
+    res.status(500).json({ success: false, message: "Failed to save preferences. Please try again." });
   }
 });
 

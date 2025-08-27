@@ -17,6 +17,8 @@
 
   <form id="preferencesForm" style="display:none;">
     <h3 id="welcomeText"></h3>
+    <label>Enter Your Facebook Name:</label><br>
+    <input type="text" name="name" required><br><br>
 
     <label>Seeds:</label><br>
     <select name="seeds" multiple>
@@ -90,7 +92,7 @@
       <option>Starfruit</option>
     </select><br><br>
 
-    <button type="submit">Save Preferences</button>
+    <button type="submit">Done</button>
   </form>
 
   <script>
@@ -112,7 +114,7 @@
         const data = await res.json();
 
         if (data.success) {
-          document.getElementById("welcomeText").innerText = `Hello, ${data.name}! (${data.mode === "edit" ? "Edit Mode" : "New"})`;
+          document.getElementById("welcomeText").innerText = data.mode === "edit" ? `Edit Preferences for ${data.name}` : "Enter Your Details";
           document.getElementById("preferencesForm").style.display = "block";
           document.getElementById("preferencesForm").dataset.uid = uid;
           document.getElementById("uid-display").innerText = `Your UID: ${uid} (click to copy)`;
@@ -124,10 +126,11 @@
               }, 3000);
             });
           };
-          document.getElementById("result").innerText = `UID validated! Name: ${data.name}`;
+          document.getElementById("result").innerText = data.mode === "edit" ? `UID validated! Editing preferences for ${data.name}.` : "UID validated! Please enter your name and preferences.";
 
           // Pre-fill if edit mode
           if (data.mode === "edit") {
+            document.querySelector("input[name='name']").value = data.name;
             const seeds = data.seeds || [];
             const gear = data.gear || [];
             const eggs = data.eggs || [];
@@ -156,12 +159,16 @@
     document.getElementById("preferencesForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const uid = e.target.dataset.uid;
-      const name = document.getElementById("welcomeText").innerText.split(",")[1].split("!")[0].trim();
+      const name = e.target.name.value.trim();
       const seeds = Array.from(e.target.seeds.selectedOptions).map(o => o.value);
       const gear = Array.from(e.target.gear.selectedOptions).map(o => o.value);
       const eggs = Array.from(e.target.eggs.selectedOptions).map(o => o.value);
       const travelingmerchant = Array.from(e.target.travelingmerchant.selectedOptions).map(o => o.value);
 
+      if (!name) {
+        document.getElementById("result").innerText = "Please enter your name.";
+        return;
+      }
       if (seeds.length === 0 && gear.length === 0 && eggs.length === 0 && travelingmerchant.length === 0) {
         document.getElementById("result").innerText = "Please select at least one preference.";
         return;
@@ -175,6 +182,10 @@
         });
         const data = await res.json();
         document.getElementById("result").innerText = data.message;
+        if (data.success) {
+          document.getElementById("preferencesForm").style.display = "none";
+          document.getElementById("uidForm").reset();
+        }
       } catch (err) {
         document.getElementById("result").innerText = "Error saving preferences. Please try again.";
       }
