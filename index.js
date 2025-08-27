@@ -34,7 +34,7 @@ const User = mongoose.model("User", userSchema);
 // ====== FACEBOOK API ======
 async function getFBUserName(uid) {
   try {
-    // Validate UID format (basic check for numeric string)
+    // Validate UID format (numeric string)
     if (!/^\d+$/.test(uid)) {
       console.error(`Invalid UID format: ${uid}`);
       return null;
@@ -478,9 +478,7 @@ app.post("/webhook", async (req, res) => {
           await sendMessengerMessage(uid, { text: prefsMsg });
         } else if (payload.startsWith("COPY_UID_")) {
           const copiedUid = payload.replace("COPY_UID_", "");
-          await sendMessengerMessage(uid, {
-            text: `UID ${copiedUid} copied! Paste it into the web interface to register.`,
-          });
+          await sendMessengerMessage(uid, { text: copiedUid });
         }
       }
     }
