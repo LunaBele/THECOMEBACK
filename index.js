@@ -34,12 +34,27 @@ const User = mongoose.model("User", userSchema);
 // ====== FACEBOOK API ======
 async function getFBUserName(uid) {
   try {
+    // Validate UID format (basic check for numeric string)
+    if (!/^\d+$/.test(uid)) {
+      console.error(`Invalid UID format: ${uid}`);
+      return null;
+    }
+
     const response = await axios.get(
-      `https://graph.facebook.com/${uid}?fields=name&access_token=${config.PAGE_ACCESS_TOKEN}`
+      `https://graph.facebook.com/v17.0/${uid}?fields=name&access_token=${config.PAGE_ACCESS_TOKEN}`,
+      { timeout: 5000 } // 5-second timeout
     );
+    if (!response.data.name) {
+      console.error(`No name returned for UID: ${uid}`);
+      return null;
+    }
     return response.data.name;
   } catch (err) {
-    console.error("FB Name Fetch Error:", err.response?.data || err.message);
+    console.error("FB Name Fetch Error:", {
+      uid,
+      error: err.response?.data?.error || err.message,
+      status: err.response?.status,
+    });
     return null;
   }
 }
@@ -51,10 +66,15 @@ async function sendMessengerMessage(uid, message) {
       {
         recipient: { id: uid },
         message,
-      }
+      },
+      { timeout: 5000 } // 5-second timeout
     );
   } catch (err) {
-    console.error("Messenger Send Error:", err.response?.data || err.message);
+    console.error("Messenger Send Error:", {
+      uid,
+      error: err.response?.data?.error || err.message,
+      status: err.response?.status,
+    });
   }
 }
 
@@ -75,6 +95,11 @@ async function sendRegistrationMessage(uid) {
             title: "Register to Use GAG DROP WATCH",
             subtitle: `Copy your UID: ${uid}`,
             buttons: [
+              {
+                type: "postback",
+                title: "Copy UID",
+                payload: `COPY_UID_${uid}`,
+              },
               {
                 type: "web_url",
                 url: config.WEB_INTERFACE_URL,
@@ -266,7 +291,10 @@ async function setupPersistentMenu() {
     );
     console.log("Persistent menu set up successfully.");
   } catch (err) {
-    console.error("Persistent Menu Setup Error:", err.response?.data || err.message);
+    console.error("Persistent Menu Setup Error:", {
+      error: err.response?.data?.error || err.message,
+      status: err.response?.status,
+    });
   }
 }
 
@@ -396,12 +424,7 @@ async function handleMemberCommands(uid, messageText, user) {
   return false; // Command not recognized
 }
 
-// ====== ROUTES ======
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// Webhook for Messenger events
+// ====== WEBHOOK HANDLING ======
 app.post("/webhook", async (req, res) => {
   const body = req.body;
 
@@ -440,11 +463,12 @@ app.post("/webhook", async (req, res) => {
         }
       }
 
-      // Handle postback (e.g., menu options)
+      // Handle postback (e.g., menu options or Copy UID)
       if (webhookEvent.postback) {
-        if (webhookEvent.postback.payload === "CHECK_STOCK") {
+        const payload = webhookEvent.postback.payload;
+        if (payload === "CHECK_STOCK") {
           await handleStockCheck(uid);
-        } else if (webhookEvent.postback.payload === "VIEW_PREFERENCES") {
+        } else if (payload === "VIEW_PREFERENCES") {
           const prefsMsg = `✅ Your Grow A Garden preferences:\n\n` +
                            `🌱 Seeds: ${user.seeds.join(", ") || "None"}\n` +
                            `🛠️ Gear: ${user.gear.join(", ") || "None"}\n` +
@@ -452,6 +476,11 @@ app.post("/webhook", async (req, res) => {
                            `🚚 Traveling Merchant: ${user.travelingmerchant.join(", ") || "None"}\n\n` +
                            `To update, visit the web interface.`;
           await sendMessengerMessage(uid, { text: prefsMsg });
+        } else if (payload.startsWith("COPY_UID_")) {
+          const copiedUid = payload.replace("COPY_UID_", "");
+          await sendMessengerMessage(uid, {
+            text: `UID ${copiedUid} copied! Paste it into the web interface to register.`,
+          });
         }
       }
     }
@@ -553,12 +582,13 @@ app.get("/webhook", (req, res) => {
 // Check UID
 app.post("/check-uid", async (req, res) => {
   const { uid } = req.body;
-  const fbName = await getFBUserName(uid);
+  const trimmedUid = uid.trim();
+  const fbName = await getFBUserName(trimmedUid);
   if (!fbName) {
-    return res.json({ success: false, message: "Invalid UID or Facebook API error." });
+    return res.json({ success: false, message: "Invalid UID or Facebook API error. Please ensure the UID is correct and try again." });
   }
 
-  const user = await User.findOne({ uid });
+  const user = await User.findOne({ uid: trimmedUid });
   if (user) {
     return res.json({
       success: true,
@@ -579,16 +609,17 @@ app.post("/save-preferences", async (req, res) => {
   const { uid, name, seeds, gear, eggs, travelingmerchant } = req.body;
 
   try {
-    const user = await User.findOne({ uid });
+    const trimmedUid = uid.trim();
+    const user = await User.findOne({ uid: trimmedUid });
     const mode = user ? "Edit Mode" : "New";
     const updatedUser = await User.findOneAndUpdate(
-      { uid },
+      { uid: trimmedUid },
       { name, seeds, gear, eggs, travelingmerchant },
       { new: true, upsert: true }
     );
 
     // Clear registration message cache for this user
-    unregisteredMessageCache.delete(uid);
+    unregisteredMessageCache.delete(trimmedUid);
 
     // Send Messenger confirmation
     let notifyMsg = `✅ Hi ${updatedUser.name}! (${mode}), your Grow A Garden notifications are saved!\n\n` +
@@ -597,7 +628,7 @@ app.post("/save-preferences", async (req, res) => {
                     `🥚 Eggs: ${updatedUser.eggs.join(", ") || "None"}\n` +
                     `🚚 Traveling Merchant: ${updatedUser.travelingmerchant.join(", ") || "None"}\n\n` +
                     `If one of these gets in stock, we will notify you. Thanks for using GAG DROP WATCH.`;
-    await sendMessengerMessage(uid, { text: notifyMsg });
+    await sendMessengerMessage(trimmedUid, { text: notifyMsg });
 
     res.json({ success: true, message: "Preferences saved and confirmation sent on Messenger." });
   } catch (err) {
